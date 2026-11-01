@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#07111d">
+  <title>ICECORE — Hockey. Connected. Live.</title>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="app-background">
+    <div class="aurora aurora-one"></div>
+    <div class="aurora aurora-two"></div>
+    <div class="ice-grid"></div>
+  </div>
+
+  <div id="app">
+    <header class="topbar">
+      <button class="brand" id="homeButton" aria-label="ICECORE domů">
+        <span class="brand-mark">◈</span>
+        <span>
+          <strong>ICECORE</strong>
+          <small>HOCKEY. CONNECTED. LIVE.</small>
+        </span>
+      </button>
+
+      <div class="topbar-actions">
+        <div class="connection-status" id="connectionStatus">
+          <span class="status-dot"></span>
+          <span id="connectionText">SYNCHRONIZACE</span>
+        </div>
+
+        <button class="icon-button" id="refreshButton" aria-label="Obnovit data">
+          ↻
+        </button>
+      </div>
+    </header>
+
+    <main class="main-content">
+
+      <!-- CORE -->
+      <section class="view active" id="coreView">
+        <div class="hero">
+          <div>
+            <p class="eyebrow">LIVE HOCKEY NETWORK</p>
+            <h1>VSTUP DO <span>JÁDRA HOKEJE</span></h1>
+            <p class="hero-text">
+              Aktuální NHL zápasy, výsledky a živé dění v jednom virtuálním centru.
+            </p>
+          </div>
+
+          <div class="core-orb" aria-hidden="true">
+            <div class="orb-ring ring-one"></div>
+            <div class="orb-ring ring-two"></div>
+            <div class="orb-center">ICE<br>CORE</div>
+          </div>
+        </div>
+
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">TODAY'S SIGNAL</p>
+            <h2>DNES V NHL</h2>
+          </div>
+          <button class="text-button" data-action="games">Všechny zápasy →</button>
+        </div>
+
+        <div id="featuredGames" class="games-grid">
+          <div class="loading-card">
+            <div class="loader"></div>
+            <span>Načítám NHL data...</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- GAMES -->
+      <section class="view" id="gamesView">
+        <div class="section-heading large-heading">
+          <div>
+            <p class="eyebrow">GAME DATABASE</p>
+            <h2>ZÁPASY</h2>
+          </div>
+        </div>
+
+        <div class="date-controls">
+          <button class="date-nav" id="previousDay" aria-label="Předchozí den">‹</button>
+          <button class="date-display" id="datePickerButton">
+            <span id="selectedDateText">Dnes</span>
+            <small id="selectedDateValue"></small>
+          </button>
+          <input type="date" id="dateInput" aria-label="Vybrat datum">
+          <button class="date-nav" id="nextDay" aria-label="Další den">›</button>
+        </div>
+
+        <div id="gamesList" class="games-list"></div>
+      </section>
+
+      <!-- LIVE -->
+      <section class="view" id="liveView">
+        <div class="section-heading large-heading">
+          <div>
+            <p class="eyebrow live-label">● LIVE MONITOR</p>
+            <h2>ŽIVÉ ZÁPASY</h2>
+          </div>
+        </div>
+
+        <div id="liveGames" class="games-grid"></div>
+      </section>
+
+      <!-- STATS -->
+      <section class="view" id="statsView">
+        <div class="section-heading large-heading">
+          <div>
+            <p class="eyebrow">LEAGUE INTELLIGENCE</p>
+            <h2>STATISTIKY</h2>
+          </div>
+        </div>
+
+        <div class="stats-placeholder glass-panel">
+          <div class="stats-icon">◈</div>
+          <h3>NHL DATA CENTER</h3>
+          <p>
+            Statistické centrum připravujeme pro další fázi ICECORE.
+            Zde budou týmové tabulky, hráčské statistiky a další data.
+          </p>
+        </div>
+      </section>
+
+      <!-- MY TEAM -->
+      <section class="view" id="teamView">
+        <div class="section-heading large-heading">
+          <div>
+            <p class="eyebrow">PERSONAL COMMAND CENTER</p>
+            <h2>MŮJ TÝM</h2>
+          </div>
+        </div>
+
+        <div class="team-selector glass-panel">
+          <div class="stats-icon">★</div>
+          <h3>VYBER SVŮJ OBLÍBENÝ TÝM</h3>
+          <p>V další verzi si zde vytvoříš vlastní hokejové centrum.</p>
+          <button class="primary-button" id="chooseTeamButton">
+            VYBRAT TÝM
+          </button>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- DETAIL ZÁPASU -->
+    <div class="modal hidden" id="gameModal" role="dialog" aria-modal="true">
+      <div class="modal-backdrop" id="modalBackdrop"></div>
+
+      <div class="game-modal-content">
+        <button class="close-modal" id="closeModal" aria-label="Zavřít detail">×</button>
+
+        <div id="gameDetailContent">
+          <div class="loading-card">
+            <div class="loader"></div>
+            <span>Načítám detail zápasu...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SPODNÍ NAVIGACE -->
+    <nav class="bottom-nav" aria-label="Hlavní navigace">
+      <button class="nav-item active" data-view="coreView">
+        <span>◈</span>
+        <small>CORE</small>
+      </button>
+
+      <button class="nav-item" data-view="gamesView">
+        <span>▦</span>
+        <small>GAMES</small>
+      </button>
+
+      <button class="nav-item live-nav" data-view="liveView">
+        <span>●</span>
+        <small>LIVE</small>
+      </button>
+
+      <button class="nav-item" data-view="statsView">
+        <span>▥</span>
+        <small>STATS</small>
+      </button>
+
+      <button class="nav-item" data-view="teamView">
+        <span>★</span>
+        <small>MY TEAM</small>
+      </button>
+    </nav>
+
+    <div id="toast" class="toast"></div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
