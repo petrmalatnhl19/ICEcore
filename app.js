@@ -1,16 +1,8 @@
 "use strict";
 
-/*
-
+/* ============================================================
 ICECORE — NHL LIVE DATA ENGINE
-
-Hlavní zdroj dat:
-NHL Web API
-
-Důležité:
-Aplikace používá endpoint /score/YYYY-MM-DD, který vrací
-přímo pole "games" pro vybraný den.
-*/
+============================================================ */
 
 const NHL_API = "https://api-web.nhle.com/v1";
 
@@ -44,7 +36,6 @@ bindEvents();
 updateDateDisplay();
 loadAllData();
 
-// Kontrola live dat každých 30 sekund.
 state.refreshTimer = window.setInterval(() => {
 if (isToday(state.selectedDate)) {
 loadAllData(false);
@@ -53,7 +44,7 @@ loadAllData(false);
 });
 
 /* ============================================================
-OVLÁDÁNÍ A NAVIGACE
+NAVIGACE A OVLÁDÁNÍ
 ============================================================ */
 
 function bindEvents() {
@@ -70,6 +61,7 @@ showView("gamesView");
 });
 
 const homeButton = document.getElementById("homeButton");
+
 if (homeButton) {
 homeButton.addEventListener("click", () => {
 showView("coreView");
@@ -110,7 +102,7 @@ if (!event.target.value) return;
 
   state.selectedDate = event.target.value;
   updateDateDisplay();
-  loadGamesForSelectedDate();
+  loadAllData(false);
 });
 
 }
@@ -151,9 +143,7 @@ button.classList.remove("active");
 });
 
 const selectedView = document.getElementById(viewId);
-const selectedNav = document.querySelector(
-"[data-view="${viewId}"]"
-);
+const selectedNav = document.querySelector("[data-view="${viewId}"]");
 
 if (selectedView) {
 selectedView.classList.add("active");
@@ -170,7 +160,7 @@ behavior: "smooth"
 }
 
 /* ============================================================
-NAČÍTÁNÍ NHL DAT
+NHL DATA
 ============================================================ */
 
 async function loadAllData(manual = false) {
@@ -182,7 +172,6 @@ elements.refreshButton.classList.add("is-refreshing");
 
 try {
 await loadGamesForSelectedDate();
-
 setConnectionStatus("ONLINE");
 
 if (manual) {
@@ -193,10 +182,7 @@ if (manual) {
 console.error("ICECORE NHL API chyba:", error);
 
 setConnectionStatus("OFFLINE");
-
-renderDataError(
-  "NHL data se momentálně nepodařilo načíst."
-);
+renderDataError("NHL data se momentálně nepodařilo načíst.");
 
 if (manual) {
   showToast("Připojení k NHL datům se nepodařilo.");
@@ -215,14 +201,9 @@ async function loadGamesForSelectedDate() {
 showLoadingState();
 
 const url = "${NHL_API}/score/${state.selectedDate}";
-
-try {
 const data = await fetchJson(url);
 
-// Tento endpoint vrací hry přímo v data.games.
-const games = Array.isArray(data.games)
-  ? data.games
-  : [];
+const games = Array.isArray(data.games) ? data.games : [];
 
 state.games = games;
 state.liveGames = games.filter(isLiveGame);
@@ -232,10 +213,6 @@ renderGamesList(games);
 renderLiveGames(state.liveGames);
 
 return games;
-
-} catch (error) {
-throw error;
-}
 }
 
 async function fetchJson(url, timeout = 12000) {
@@ -250,14 +227,12 @@ const response = await fetch(url, {
 method: "GET",
 signal: controller.signal,
 headers: {
-"Accept": "application/json"
+Accept: "application/json"
 }
 });
 
 if (!response.ok) {
-  throw new Error(
-    `NHL API odpovědělo chybou: ${response.status}`
-  );
+  throw new Error(`NHL API odpovědělo chybou: ${response.status}`);
 }
 
 return await response.json();
@@ -365,7 +340,6 @@ data-game-id="${escapeHtml(String(game.id))}">
   </div>
 
   <div class="game-teams">
-
     ${teamCard(away)}
 
     <div class="score-block">
@@ -378,7 +352,6 @@ data-game-id="${escapeHtml(String(game.id))}">
     </div>
 
     ${teamCard(home)}
-
   </div>
 
   <div class="game-footer">
@@ -391,27 +364,17 @@ data-game-id="${escapeHtml(String(game.id))}">
 }
 
 function teamCard(team) {
-return `
-<div class="team">
-
-  <div class="team-logo-wrap">
-    ${
-      team.logo
-        ? `<img
-            class="team-logo"
-            src="${escapeHtml(team.logo)}"
-            alt="${escapeHtml(team.name)} logo"
-            loading="lazy"
-            onerror="this.style.display='none'"
-          >`
-        : `<span>◈</span>`
-    }
-  </div>
+return "<div class="team"> <div class="team-logo-wrap"> ${ team.logo ?"<img class="team-logo"
+src="${escapeHtml(team.logo)}"
+alt="${escapeHtml(team.name)} logo"
+loading="lazy"
+onerror="this.style.display='none'">":"<span>◈</span>`
+}
+</div>
 
   <span class="team-name">
     ${escapeHtml(team.name)}
   </span>
-
 </div>
 
 `;
@@ -451,7 +414,7 @@ if (!team.logo) {
 return "<span>◈</span>";
 }
 
-return "<img src="${escapeHtml(team.logo)}" alt="${escapeHtml(team.name)}" loading="lazy" onerror="this.style.display='none'" >";
+return "<img src="${escapeHtml(team.logo)}" alt="${escapeHtml(team.name)}" loading="lazy" onerror="this.style.display='none'">";
 }
 
 function bindGameCards(container) {
@@ -509,18 +472,13 @@ if (!elements.gameDetailContent) return;
 const home = getTeam(data.homeTeam);
 const away = getTeam(data.awayTeam);
 const status = getGameStatus(data);
-
 const goals = extractGoals(data);
 
 elements.gameDetailContent.innerHTML = `
 <div class="detail-header">
-
-  <p class="eyebrow">
-    ICECORE GAME CENTER
-  </p>
+<p class="eyebrow">ICECORE GAME CENTER</p>
 
   <div class="game-teams">
-
     ${teamCard(away)}
 
     <div>
@@ -534,13 +492,10 @@ elements.gameDetailContent.innerHTML = `
     </div>
 
     ${teamCard(home)}
-
   </div>
-
 </div>
 
 <div class="goals-section">
-
   <h3>🏒 GÓLY A ASISTENCE</h3>
 
   ${
@@ -550,7 +505,6 @@ elements.gameDetailContent.innerHTML = `
           "Zatím nejsou k dispozici žádné góly nebo podrobnosti o skórování."
         )
   }
-
 </div>
 
 `;
@@ -566,19 +520,19 @@ return [];
 const goals = [];
 
 scoring.forEach(item => {
-// Některé odpovědi mají jednotlivé periody s polem goals.
 if (Array.isArray(item?.goals)) {
 item.goals.forEach(goal => {
 goals.push({
 ...goal,
-period: goal.period || item.periodDescriptor?.number || item.period
+period:
+goal.period ||
+item.periodDescriptor?.number ||
+item.period
 });
 });
-
-  return;
+return;
 }
 
-// Záložní možnost pro přímé pole gólů.
 if (item?.scorer || item?.name || item?.timeInPeriod) {
   goals.push(item);
 }
@@ -606,9 +560,7 @@ assist?.name ||
 assist?.playerName?.default ||
 "";
 
-  if (name) {
-    assists.push(name);
-  }
+  if (name) assists.push(name);
 });
 
 }
@@ -631,11 +583,10 @@ goal?.homeScore !== undefined
 
 return `
 <div class="goal-row">
-
-  <div class="goal-time">
-    ${escapeHtml(String(period || "—"))}.
-    ${escapeHtml(String(time))}
-  </div>
+<div class="goal-time">
+${escapeHtml(String(period || "—"))}.
+${escapeHtml(String(time))}
+</div>
 
   <div>
     <div class="goal-player">
@@ -654,14 +605,13 @@ return `
   <div class="goal-score">
     ${escapeHtml(score)}
   </div>
-
 </div>
 
 `;
 }
 
 /* ============================================================
-NHL DATA HELPERS
+NHL POMOCNÉ FUNKCE
 ============================================================ */
 
 function getTeam(team) {
@@ -673,7 +623,6 @@ score: null
 };
 }
 
-// Název týmu může být v NHL API rozdělený na město a přezdívku.
 const placeName =
 team.placeName?.default ||
 "";
@@ -720,17 +669,8 @@ game?.gameScheduleState ||
 ""
 ).toUpperCase();
 
-const liveStates = [
-"LIVE",
-"CRIT",
-"IN_PROGRESS"
-];
-
-const finalStates = [
-"FINAL",
-"OFF",
-"OVER"
-];
+const liveStates = ["LIVE", "CRIT", "IN_PROGRESS"];
+const finalStates = ["FINAL", "OFF", "OVER"];
 
 if (liveStates.includes(gameState)) {
 return {
@@ -775,9 +715,7 @@ game?.period ||
 
 const time =
 game?.clock?.timeRemaining ||
-game?.clock?.inIntermission
-? game?.clock?.timeRemaining
-: game?.timeRemaining ||
+game?.timeRemaining ||
 "";
 
 if (period && time) {
@@ -805,7 +743,7 @@ return 10;
 }
 
 /* ============================================================
-DATA A ČAS
+DATUM A ČAS
 ============================================================ */
 
 function getLocalDateString(date = new Date()) {
@@ -876,7 +814,6 @@ year: "numeric"
 }).format(
 new Date("${dateString}T12:00:00")
 );
-
 } catch {
 return dateString;
 }
@@ -889,14 +826,13 @@ hour: "2-digit",
 minute: "2-digit",
 timeZone: "Europe/Prague"
 }).format(new Date(dateTime));
-
 } catch {
 return "PLÁNOVÁNO";
 }
 }
 
 /* ============================================================
-CHYBOVÉ STAVY A UI
+UI STAVY
 ============================================================ */
 
 function renderDataError(message) {
@@ -915,9 +851,7 @@ elements.liveGames.innerHTML = html;
 }
 }
 
-function loadingTemplate(
-message = "Načítám NHL data..."
-) {
+function loadingTemplate(message = "Načítám NHL data...") {
 return "<div class="loading-card"> <div class="loader"></div> <span>${escapeHtml(message)}</span> </div>";
 }
 
@@ -926,7 +860,7 @@ return "<div class="empty-state"> <div class="stats-icon">◈</div> <span>${esca
 }
 
 function errorTemplate(message) {
-return "<div class="empty-state"> <div class="stats-icon">!</div> <span>${escapeHtml(message)}</span> <button class="primary-button" onclick="location.reload()" > ZKUSIT ZNOVU </button> </div>";
+return "<div class="empty-state"> <div class="stats-icon">!</div> <span>${escapeHtml(message)}</span> <button class="primary-button" onclick="location.reload()"> ZKUSIT ZNOVU </button> </div>";
 }
 
 function setConnectionStatus(text) {
